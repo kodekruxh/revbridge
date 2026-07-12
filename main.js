@@ -3,12 +3,28 @@
 
     // Spinner
     var spinner = function () {
-        setTimeout(function () {
-            if ($('#spinner').length > 0) {
-                $('#spinner').removeClass('show');
+        var $spinner = $('#spinner');
+        var $video = $('video');
+
+        function hideSpinner() {
+            if ($spinner.length) {
+                $spinner.removeClass('show');
             }
-        }, 5000);
+        }
+
+        // When video is ready
+        if ($video.length) {
+            $video.on('canplaythrough', function () {
+                hideSpinner();
+            });
+        }
+
+        // Fallback: when full page loads
+        $(window).on('load', function () {
+            hideSpinner();
+        });
     };
+
     spinner();
     
     

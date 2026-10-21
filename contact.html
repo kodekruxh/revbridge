@@ -246,12 +246,6 @@
                             </label>
                             </div>
                             <p>By submitting my cell phone number on www.revbridgellc.com, I consent to receive recurring promotional messages and service announcements from RevBridge LLC. Message frequency may vary. Message and data rates may apply. Reply STOP to opt out or HELP for assistance.</p>
-                            <!-- FormSubmit email settings -->
-                            <input type="hidden" name="_subject" value="New Contact Inquiry - RevBridge LLC">
-                            <input type="hidden" name="_template" value="basic">
-
-                            <!-- Spam protection: leave FormSubmit's CAPTCHA enabled -->
-                            <input type="text" name="_honey" style="display:none">
                             <input type="hidden" name="ip" id="ipField">
                             <input type="hidden" name="location" id="locationField">
                             <p>For more details, please review our :</p>
@@ -370,219 +364,63 @@
     <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded back-to-top"><i class="bi bi-arrow-up"></i></a>
 
     <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2P1gCJ-xqFFXRZd57H2EgsGkDRIPjuf6PtJxopuk4nBLnAbuw6MTLVY8Lsz4Yo9-7/exec";
 
-const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycby2P1gCJ-xqFFXRZd57H2EgsGkDRIPjuf6PtJxopuk4nBLnAbuw6MTLVY8Lsz4Yo9-7/exec";
+        const ipReady = (async function fetchIpInfo() {
+            try {
+                const res = await fetch("https://ipwho.is/");
+                const info = await res.json();
+                if (!info.success) throw new Error(info.message || "Lookup failed");
 
-// IMPORTANT: Replace with your actual receiving email.
-const FORMSUBMIT_URL =
-    "https://formsubmit.co/ajax/kodekruxh@gmail.com";
+                document.getElementById("ipField").value = info.ip || "";
+                document.getElementById("locationField").value =
+                    [info.city, info.region, info.country].filter(Boolean).join(", ");
+            } catch (err) {
+                console.warn("IP lookup failed:", err);
+                // Fields stay empty; the form still works
+            }
+        })();
 
-const contactForm = document.getElementById("contactForm");
-const submitBtn = document.getElementById("submitBtn");
-const formStatus = document.getElementById("formStatus");
+        async function submitContactForm(event) {
+            event.preventDefault();
+            await ipReady;
 
-// Fetch visitor IP and approximate location
-const ipReady = (async function fetchIpInfo() {
-    try {
-        const response = await fetch("https://ipwho.is/");
-        const info = await response.json();
+            const form = event.target;
+            const btn = document.getElementById("submitBtn");
+            const status = document.getElementById("formStatus");
 
-        if (!response.ok || !info.success) {
-            throw new Error(info.message || "IP lookup failed");
-        }
+            const data = new URLSearchParams(new FormData(form));
 
-        document.getElementById("ipField").value =
-            info.ip || "";
+            btn.disabled = true;
+            btn.textContent = "Sending...";
+            status.textContent = "";
 
-        document.getElementById("locationField").value = [
-            info.city,
-            info.region,
-            info.country
-        ].filter(Boolean).join(", ");
-
-    } catch (error) {
-        console.warn("IP/location lookup failed:", error);
-        // The form can still be submitted without these values.
-    }
-})();
-
-async function submitContactForm(event) {
-    event.preventDefault();
-
-    if (submitBtn.disabled) return;
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Sending...";
-    formStatus.textContent = "";
-
-    try {
-        // Wait for IP/location lookup to finish.
-        await ipReady;
-
-        // Collect all named form fields.
-        const formData = new FormData(contactForm);
-
-        // Create email data inside this function's scope.
-        const emailData = Object.fromEntries(formData.entries());
-
-        // Use the visitor's email as Reply-To.
-        emailData._replyto = emailData.email;
-
-        // Google Apps Script receives URL-encoded data.
-        const sheetData = new URLSearchParams(formData);
-
-        // Send independently to both services.
-        const results = await Promise.allSettled([
-
-            // 1. FormSubmit email
-            (async function sendEmail() {
-                const response = await fetch(FORMSUBMIT_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    },
-                    body: JSON.stringify(emailData)
-                });
-
-                const responseText = await response.text();
-
-                console.log(
-                    "FormSubmit HTTP status:",
-                    response.status
-                );
-
-                console.log(
-                    "FormSubmit raw response:",
-                    responseText
-                );
-
-                // Handle HTML responses without a JSON parsing crash.
-                let result;
-
-                try {
-                    result = JSON.parse(responseText);
-                } catch {
-                    throw new Error(
-                        "FormSubmit returned non-JSON content. " +
-                        "HTTP " + response.status + ". Response: " +
-                        responseText.slice(0, 300)
-                    );
-                }
-
-                if (
-                    !response.ok ||
-                    (
-                        result.success !== true &&
-                        result.success !== "true"
-                    )
-                ) {
-                    throw new Error(
-                        result.message ||
-                        "FormSubmit email request failed"
-                    );
-                }
-
-                return result;
-            })(),
-
-            // 2. Google Sheets
-            (async function saveToSheet() {
+            try {
                 const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: sheetData
+                method: "POST",
+                body: data, // sent as application/x-www-form-urlencoded (no CORS preflight)
                 });
 
-                const responseText = await response.text();
+                const text = await response.text();
 
-                console.log(
-                    "Google Sheets response:",
-                    responseText
-                );
-
-                if (
-                    !response.ok ||
-                    responseText.trim() !== "success"
-                ) {
-                    throw new Error(
-                        responseText ||
-                        "Google Sheets submission failed"
-                    );
+                if (text.trim() === "success") {
+                status.textContent = "Thank you! Your message has been sent.";
+                status.className = "mt-3 text-success";
+                form.reset();
+                } else {
+                throw new Error(text);
                 }
-
-                return responseText;
-            })()
-
-        ]);
-
-        const emailSent =
-            results[0].status === "fulfilled";
-
-        const sheetSaved =
-            results[1].status === "fulfilled";
-
-        // Log actual errors for debugging.
-        if (!emailSent) {
-            console.error(
-                "FormSubmit failed:",
-                results[0].reason
-            );
+            } catch (error) {
+                console.error("Form error:", error);
+                status.textContent = "Something went wrong. Please try again.";
+                status.className = "mt-3 text-danger";
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Send Message";
+            }
         }
 
-        if (!sheetSaved) {
-            console.error(
-                "Google Sheets failed:",
-                results[1].reason
-            );
-        }
-
-        // Display the correct outcome.
-        if (emailSent && sheetSaved) {
-            formStatus.textContent =
-                "Thank you! Your message has been sent successfully.";
-
-            formStatus.className = "mt-3 text-success";
-
-            contactForm.reset();
-
-        } else if (emailSent && !sheetSaved) {
-            formStatus.textContent =
-                "Your email was sent, but saving to Google Sheets failed.";
-
-            formStatus.className = "mt-3 text-warning";
-
-        } else if (!emailSent && sheetSaved) {
-            formStatus.textContent =
-                "Your data was saved to the sheet, but the email could not be sent. Please check the console for details.";
-
-            formStatus.className = "mt-3 text-warning";
-
-        } else {
-            formStatus.textContent =
-                "Neither service confirmed the submission. Please check the console before retrying.";
-
-            formStatus.className = "mt-3 text-danger";
-        }
-
-    } catch (error) {
-        console.error("Contact form error:", error);
-
-        formStatus.textContent =
-            "Something went wrong. Please try again.";
-
-        formStatus.className = "mt-3 text-danger";
-
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Send Message";
-    }
-}
-
-// Register only one submit listener.
-contactForm.addEventListener("submit", submitContactForm);
-
-
+        document.getElementById("contactForm").addEventListener("submit", submitContactForm);
     </script>
 
 

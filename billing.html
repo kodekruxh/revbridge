@@ -532,40 +532,31 @@
                         <h4 class="fw-bold text-white text-center mb-2">Book Your Free Consultation</h4>
                         <p class="text-center text-white-50 mb-4">Tell us about your practice and we'll be in touch.</p>
 
-                        <form action="/contact-submit" method="post">
+                        <form>
                             <div class="row g-3">
-                                <div class="col-12">
-                                    <input type="text" class="form-control border-0 py-3" name="name" placeholder="Your Name" required>
+                                <div class="col-xl-12">
+                                    <input type="text" class="form-control bg-light border-0" placeholder="Your Name" style="height: 55px;">
                                 </div>
                                 <div class="col-12">
-                                    <input type="text" class="form-control border-0 py-3" name="practice" placeholder="Practice Name" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="email" class="form-control border-0 py-3" name="email" placeholder="Email Address" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="tel" class="form-control border-0 py-3" name="phone" placeholder="Phone Number" required>
+                                    <input type="email" class="form-control bg-light border-0" placeholder="Your Email" style="height: 55px;">
                                 </div>
                                 <div class="col-12">
-                                    <select class="form-select border-0 py-3" name="specialty" required>
-                                        <option value="" selected disabled>Select Your Specialty</option>
-                                        <option>Cardiology</option>
-                                        <option>Dermatology</option>
-                                        <option>Urgent Care</option>
-                                        <option>Neurology</option>
-                                        <option>OB/GYN</option>
-                                        <option>Family Practice</option>
-                                        <option>Other</option>
+                                    <select class="form-select bg-light border-0" style="height: 55px;">
+                                        <option selected>Select A Service</option>
+                                        <option value="1">End-to-End Medical Billing</option>
+                                        <option value="2">Provider Credentialing</option>
+                                        <option value="3">Denial Management & Audit</option>
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <textarea class="form-control border-0" name="message" rows="3" placeholder="Anything we should know? (optional)"></textarea>
+                                    <textarea class="form-control bg-light border-0" rows="3" placeholder="Tell us about your practice (Specialty, monthly volume, etc.)"></textarea>
                                 </div>
                                 <div class="col-12">
-                                    <button class="btn btn-dark w-100 py-3 fw-semibold" type="submit">Request Free Consultation</button>
+                                    <button class="btn btn-dark w-100 py-3" type="submit">Request A Quote</button>
                                 </div>
                             </div>
                         </form>
+
                     </div>
                 </div>
 

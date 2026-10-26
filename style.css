@@ -214,6 +214,178 @@ h6,
     }
 }
 
+/* ================= MEGA MENU (fluid width) ================= */
+
+.mega-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 1.5rem;
+}
+.mega-col { min-width: 240px; }
+
+.mega-title {
+    font-weight: 700;
+    font-size: .8rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--bs-primary, #06A3DA);
+    padding-bottom: .75rem;
+    margin-bottom: .5rem;
+    border-bottom: 2px solid var(--bs-primary, #06A3DA);
+}
+
+.mega-links li a {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    padding: .7rem .75rem;
+    border-radius: .6rem;
+    color: #222;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .25s ease, color .25s ease, transform .25s ease;
+}
+.mega-links li a i {
+    flex: 0 0 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: .6rem;
+    background: rgba(6,163,218,.1);
+    color: var(--bs-primary, #06A3DA);
+    transition: all .25s ease;
+}
+.mega-links li a small {
+    display: block;
+    font-weight: 400;
+    color: #777;
+    font-size: .78rem;
+}
+.mega-links li a:hover {
+    background: #f4f8fb;
+    color: var(--bs-primary, #06A3DA);
+    transform: translateX(4px);
+}
+.mega-links li a:hover i {
+    background: var(--bs-primary, #06A3DA);
+    color: #fff;
+}
+
+/* Use this when you add the video column later */
+.mega-video { position: relative; width: 280px; min-height: 240px; background: #000; border-radius: .9rem; overflow: hidden; }
+.mega-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mega-video-overlay { background: linear-gradient(to top, rgba(0,0,0,.9), rgba(0,0,0,0)); padding-top: 3.5rem !important; }
+
+/* ---------- Desktop ---------- */
+@media (min-width: 992px) {
+
+    .navbar .nav-item.mega { position: relative !important; }
+
+    .navbar .nav-item.mega > .dropdown-menu.mega-menu {
+        position: absolute !important;
+        inset: calc(100% + 16px) auto auto 0 !important;   /* 16px gap, aligned to the left of "Services" */
+        width: max-content !important;                     /* shrinks / grows with content */
+        min-width: 0 !important;
+        max-width: 90vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 1.25rem !important;
+        background: #fff !important;
+        box-shadow: 0 25px 60px rgba(0,0,0,.2);
+
+        display: block !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none;
+        transform: translate(-20px, 20px) !important;      /* starts lower-left */
+        transition: opacity .35s ease, transform .35s ease, visibility .35s ease !important;
+    }
+
+    /* invisible bridge so the menu doesn't close while the mouse crosses the gap */
+    .navbar .nav-item.mega > .mega-menu::before {
+        content: "";
+        position: absolute;
+        top: -20px;
+        left: 0;
+        width: 100%;
+        height: 20px;
+    }
+
+    .navbar .nav-item.mega:hover > .dropdown-menu.mega-menu,
+    .navbar .nav-item.mega > .dropdown-menu.mega-menu.show {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto;
+        transform: translate(0, 0) !important;
+    }
+
+    /* links fade in one after another */
+    .mega-links li {
+        opacity: 0;
+        transform: translateX(-15px);
+        transition: opacity .35s ease, transform .35s ease;
+    }
+    .navbar .nav-item.mega:hover .mega-links li,
+    .mega-menu.show .mega-links li { opacity: 1; transform: none; }
+    .mega-links li:nth-child(1) { transition-delay: .08s; }
+    .mega-links li:nth-child(2) { transition-delay: .16s; }
+    .mega-links li:nth-child(3) { transition-delay: .24s; }
+}
+
+/* ---------- Mobile / tablet ---------- */
+@media (max-width: 991.98px) {
+
+    .navbar .nav-item.mega > .dropdown-menu.mega-menu {
+        position: static !important;
+        inset: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: .5rem 0 1rem !important;
+        padding: 0 !important;
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        background: #fff !important;
+        border: 0 !important;
+        border-radius: 1rem !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,.15);
+        display: none !important;
+    }
+    .navbar .nav-item.mega > .dropdown-menu.mega-menu.show { display: block !important; }
+
+    .mega-inner { padding: 1rem; gap: 1.5rem; }
+    .mega-col { min-width: 0; width: 100%; }
+    .mega-links li { opacity: 1; transform: none; }
+    .mega-video { width: 100%; }
+}
+
+.mega-col-video { width: 280px; min-width: 280px; }
+.mega-col-video .mega-video { width: 100%; height: 100%; min-height: 240px; }
+
+@media (min-width: 992px) {
+    /* the navbar becomes the anchor instead of the "Services" link */
+    .navbar .nav-item.mega { position: static !important; }
+
+    .navbar .nav-item.mega > .dropdown-menu.mega-menu {
+        inset: calc(100% + 16px) 3rem auto auto !important;  /* right edge = navbar's px-5 edge */
+        max-width: calc(100vw - 6rem) !important;
+        transform: translate(-20px, 20px) !important;        /* starts lower-left */
+    }
+
+    .navbar .nav-item.mega:hover > .dropdown-menu.mega-menu,
+    .navbar .nav-item.mega > .dropdown-menu.mega-menu.show {
+        transform: translate(0, 0) !important;
+    }
+
+    /* stagger the video column in too */
+    .mega-col-video { opacity: 0; transition: opacity .4s ease .32s; }
+    .navbar .nav-item.mega:hover .mega-col-video,
+    .mega-menu.show .mega-col-video { opacity: 1; }
+}
 
 /*** Hero Section ***/
 .hero-video {

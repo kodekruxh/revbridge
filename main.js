@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
             responsive: { 0: { items: 1 }, 576: { items: 1 }, 768: { items: 2 }, 992: { items: 3 } }
         });
         jQuery('.vendor-carousel').owlCarousel({
-            loop: true, margin: 30, dots: false, autoplay: true, smartSpeed: 1000,
+            loop: true, margin: 100, dots: false, autoplay: true, smartSpeed: 1000,
             responsive: { 0: { items: 2 }, 576: { items: 3 }, 768: { items: 4 }, 992: { items: 5 } }
         });
     }
